@@ -1,17 +1,18 @@
+# ROS2 imports 
 import rclpy
 from rclpy.node import Node
 
+# CV Bridge and message imports
 from sensor_msgs.msg import Image
 from std_msgs.msg import String
-import cv2
-import numpy as np
+from vision_msgs.msg import ObjectHypothesisWithPose, BoundingBox2D, Detection2D, Detection2DArray
 from cv_bridge import CvBridge, CvBridgeError
 
 from live_detection.mobilenetv1_ssd import create_mobilenetv1_ssd, create_mobilenetv1_ssd_predictor
 from live_detection.misc import Timer
 
-from vision_msgs.msg import ObjectHypothesisWithPose, BoundingBox2D, Detection2D, Detection2DArray
-
+import cv2
+import numpy as np
 import os
 
 
@@ -25,10 +26,12 @@ class DetectionNode(Node):
         self.subscription  # prevent unused variable warning
         self.bridge = CvBridge()
 
-        # self.publisher_ = self.create_publisher(Image, 'detection_results',10)
+        # Create a Detection 2D array topic to publish results on
         self.detection_publisher = self.create_publisher(Detection2DArray, 'detection', 10)
 
         self.net_type = 'mb1-ssd'
+        
+        # Weights and labels locations
         self.model_path = os.getenv("HOME")+ '/mobilenet-v1-ssd-mp-0_675.pth'
         self.label_path = os.getenv("HOME") + '/voc-model-labels.txt'
 
@@ -63,6 +66,7 @@ class DetectionNode(Node):
             print("Object: " + str(i) + " " + label)
             cv2.rectangle(cv_image, (box[0], box[1]), (box[2], box[3]), (255, 255, 0), 4)
 
+            # Definition of 2D array message and ading all object stored in it.
             object_hypothesis_with_pose = ObjectHypothesisWithPose()
             object_hypothesis_with_pose.id = str(self.class_names[labels[i]])
             object_hypothesis_with_pose.score = float(probs[i])
@@ -89,7 +93,9 @@ class DetectionNode(Node):
                         cv2.FONT_HERSHEY_SIMPLEX,
                         1,  # font scale
                        (255, 0, 255), 2)  # line type
+        # Displaying the predictions
         cv2.imshow('object_detection', cv_image)
+        # Publishing the results onto the the Detection2DArray vision_msgs format
         self.detection_publisher.publish(detection_array)
         cv2.waitKey(1)
         
