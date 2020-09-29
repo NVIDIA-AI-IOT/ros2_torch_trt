@@ -79,7 +79,11 @@ If using usb_camera package: `ros2 run usb_camera_driver usb_camera_driver_node`
 It will display the labels and probabilities for the objects detected in the image.
 Also, a window will appear which will display the object detection results in real time.
 
-![alt text](images/detectin&classification.png "Graph which shows nodes and topics")
+## RQT Graph when both Detection and Classifier Nodes are running
+
+![alt text](images/detectin_classification.png "Graph which shows nodes and topics")
+
+- The results are published to `vision_msgs`
 
 ## References
 
