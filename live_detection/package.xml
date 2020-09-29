@@ -1,0 +1,30 @@
+<?xml version="1.0"?>
+<?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
+<package format="3">
+  <name>live_detection</name>
+  <version>0.0.0</version>
+  <description>ROS2 Package for live detection using PyTorch</description>
+  <maintainer email="rchadha@nvidia.com">rishabh</maintainer>
+  <license>MIT License</license>
+
+  <buildtool_depend>ament_python</buildtool_depend>
+
+  <exec_depend>rclpy</exec_depend>
+  <exec_depend>std_msgs</exec_depend>
+  <exec_depend>sensor_msgs</exec_depend>
+  <exec_depend>vision_msgs</exec_depend>
+  <exec_depend>torch</exec_depend>
+  <exec_depend>torchvision</exec_depend>
+  <exec_depend>numpy</exec_depend>
+  <exec_depend>cv_bridge</exec_depend>
+  <exec_depend>cv2</exec_depend>  
+
+  <test_depend>ament_copyright</test_depend>
+  <test_depend>ament_flake8</test_depend>
+  <test_depend>ament_pep257</test_depend>
+  <test_depend>python3-pytest</test_depend>
+
+  <export>
+    <build_type>ament_python</build_type>
+  </export>
+</package>
