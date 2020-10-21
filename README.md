@@ -119,7 +119,7 @@ python3 generate_trt_module.py
 If using usb_camera package: `ros2 run usb_camera_driver usb_camera_driver_node`
 
 - In the second terminal (should be sourced):
-`ros2 run trt_live_classifier trt_live_classifier`
+`ros2 run trt_live_classifier trt_classifier`
 
 - This will now create a node which carries out faster inference which is clear from the `inference time` which is displayed on the terminal as well. 
 
@@ -142,7 +142,7 @@ python3 ssd_trtConverter.py
 If using usb_camera package: `ros2 run usb_camera_driver usb_camera_driver_node`
 
 - In the second terminal (should be sourced):
-`ros2 run trt_live_detector trt_live_detector`
+`ros2 run trt_live_detector trt_detector`
 
 - This will now create a node which carries out faster object detection which is clear from the `inference time` and is displayed on the terminal as well.
 
