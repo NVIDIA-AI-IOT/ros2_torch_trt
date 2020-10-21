@@ -24,11 +24,13 @@ import cv2
 import numpy as np
 import os
 
+from torch2trt import TRTModule
+import torch
 
-class DetectionNode(Node):
+class TRTDetectionNode(Node):
 
     def __init__(self):
-        super().__init__('detection_node')
+        super().__init__('trt_detection_node')
 
         # Create a subscriber to the Image topic
         self.subscription = self.create_subscription(Image, 'image', self.listener_callback, 10)
@@ -41,14 +43,14 @@ class DetectionNode(Node):
         self.net_type = 'mb1-ssd'
         
         # Weights and labels locations
-        self.model_path = os.getenv("HOME")+ '/ros2_models/mobilenet-v1-ssd-mp-0_675.pth'
         self.label_path = os.getenv("HOME") + '/ros2_models/voc-model-labels.txt'
+        model_path = os.getenv("HOME") + '/ros2_models/mb1SSD_trt.pth'
 
         self.class_names = [name.strip() for name in open(self.label_path).readlines()]
         self.num_classes = len(self.class_names)
-        
-        self.net = create_mobilenetv1_ssd(len(self.class_names), is_test=True)
-        self.net.load(self.model_path)
+                
+        self.net = TRTModule()
+        self.net.load_state_dict(torch.load(model_path))
         self.predictor = create_mobilenetv1_ssd_predictor(self.net, candidate_size=200)
 
         self.timer = Timer()
@@ -103,7 +105,7 @@ class DetectionNode(Node):
                         1,  # font scale
                        (255, 0, 255), 2)  # line type
         # Displaying the predictions
-        cv2.imshow('object_detection', cv_image)
+        cv2.imshow('trt_object_detection', cv_image)
         # Publishing the results onto the the Detection2DArray vision_msgs format
         self.detection_publisher.publish(detection_array)
         cv2.waitKey(1)

@@ -105,7 +105,7 @@ Also, a window will appear which will display the object detection results in re
 - Open a terminal and navigate into your worksapce. We need to run a `python` script to generate the `trt` module which depends on your hardware configuration.
 ```
 cd src/trt_live_classfier/trt_live_classifier
-python3 script_name.py
+python3 generate_trt_module.py
 ```
 - This will create the necessary `.pth` file in `home/ros2_models` which will be needed for inference via `torch2trt`. By default a Squeezenet model is created.
 
@@ -128,7 +128,7 @@ If using usb_camera package: `ros2 run usb_camera_driver usb_camera_driver_node`
 - Open a terminal and navigate into your worksapce. We need to run a `python` script to generate the `trt` module which depends on your hardware configuration.
 ```
 cd src/trt_live_detector/trt_live_detector
-python3 script_name.py
+python3 ssd_trtConverter.py
 ```
 - This will create the necessary `.pth` file in `home/ros2_models` which will be needed for inference via `torch2trt`. The `mbv1-ssd` model which was used in `live_detection` is converted to the `torch2trt` format.
 
@@ -145,6 +145,16 @@ If using usb_camera package: `ros2 run usb_camera_driver usb_camera_driver_node`
 `ros2 run trt_live_detector trt_live_detector`
 
 - This will now create a node which carries out faster object detection which is clear from the `inference time` and is displayed on the terminal as well.
+
+## Speedup by using TRT module
+
+All expereiments were carried out on the Jetson Xavier AGX
+
+`Time for Live Classifier: 0.026 secs`
+`Time for TRT classifier: 0.0014 secs`
+
+`Time for Live detector: 0.028 secs`
+`Time for TRT detector: 0.0032 secs`
 
 ## References
 
