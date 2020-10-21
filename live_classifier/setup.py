@@ -20,7 +20,7 @@ setup(
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
-        'live_classfier = live_classifier.live_classifier:main',
+        'live_classifier = live_classifier.live_classifier:main',
         ],
     },
 )
