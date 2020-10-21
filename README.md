@@ -104,7 +104,7 @@ Also, a window will appear which will display the object detection results in re
 
 - Open a terminal and navigate into your worksapce. We need to run a `python` script to generate the `trt` module which depends on your hardware configuration.
 ```
-cd src/trt_live_classfier/trt_live_classifier
+cd src/ros2-pytorch/trt_live_classfier/trt_live_classifier
 python3 generate_trt_module.py
 ```
 - This will create the necessary `.pth` file in `home/ros2_models` which will be needed for inference via `torch2trt`. By default a Squeezenet model is created.
@@ -127,7 +127,7 @@ If using usb_camera package: `ros2 run usb_camera_driver usb_camera_driver_node`
 
 - Open a terminal and navigate into your worksapce. We need to run a `python` script to generate the `trt` module which depends on your hardware configuration.
 ```
-cd src/trt_live_detector/trt_live_detector
+cd src/ros2-pytorch/trt_live_detector/trt_live_detector
 python3 ssd_trtConverter.py
 ```
 - This will create the necessary `.pth` file in `home/ros2_models` which will be needed for inference via `torch2trt`. The `mbv1-ssd` model which was used in `live_detection` is converted to the `torch2trt` format.
