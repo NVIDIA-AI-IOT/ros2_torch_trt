@@ -3,11 +3,23 @@
 <package format="3">
   <name>trt_live_classifier</name>
   <version>0.0.0</version>
-  <description>TODO: Package description</description>
+  <description>ROS2 Package for classification using TensorRT</description>
   <maintainer email="rchadha@nvidia.com">rishabh</maintainer>
-  <license>TODO: License declaration</license>
+  <license>MIT License</license>
 
   <buildtool_depend>ament_python</buildtool_depend>
+
+  <exec_depend>rclpy</exec_depend>
+  <exec_depend>std_msgs</exec_depend>
+  <exec_depend>sensor_msgs</exec_depend>
+  <exec_depend>vision_msgs</exec_depend>
+  <exec_depend>torch</exec_depend>
+  <exec_depend>torch2trt</exec_depend>
+  <exec_depend>torchvision</exec_depend>
+  <exec_depend>numpy</exec_depend>
+  <exec_depend>cv_bridge</exec_depend>
+  <exec_depend>cv2</exec_depend>  
+
 
   <test_depend>ament_copyright</test_depend>
   <test_depend>ament_flake8</test_depend>
