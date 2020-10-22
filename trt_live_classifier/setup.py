@@ -15,8 +15,8 @@ setup(
     zip_safe=True,
     maintainer='rishabh',
     maintainer_email='rchadha@nvidia.com',
-    description='TODO: Package description',
-    license='TODO: License declaration',
+    description='ROS2 Package for classification using TensorRT',
+    license='MIT License',
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
