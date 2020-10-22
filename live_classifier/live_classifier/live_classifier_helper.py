@@ -45,11 +45,17 @@ class WebcamClassifier(Node):
         # create a publisher onto the vision_msgs 2D classification topic
         self.classification_publisher = self.create_publisher(Classification2D, 'classification', 10)
 
-        # Use the SqueezeNet model for classification
-        self.squeezenet = models.squeezenet1_0(pretrained=True)
+        # create a model parameter, by default the model is resnet18
+        self.declare_parameter('model', "resnet18")
+        model_name = self.get_parameter('model')
+        
+        print(model_name.value)
 
-        # Load it onto the GPU
-        self.squeezenet.cuda()
+        # Use the SqueezeNet model for classification
+        self.classification_model = self.create_classification_model(model_name)
+
+        # Load it onto the GPU and set it to evaluation mode
+        self.classification_model.eval().cuda()
 
         # Use CV bridge to convert ROS Image to CV_image for visualizing in window
         self.bridge = CvBridge()
@@ -58,6 +64,26 @@ class WebcamClassifier(Node):
         with open(os.getenv("HOME") + '/ros2_models/imagenet_classes.txt') as f:
            self.labels = [line.strip() for line in f.readlines()]      
  
+    
+
+    def create_classification_model(self, model_name):
+        
+        if(str(model_name.value) == "squeezenet"):
+            return torchvision.models.squeezenet1_1(pretrained=True)
+        
+        elif(str(model_name.value) == "alexnet"):
+            return torchvision.models.alexnet(pretrained=True)
+            
+        elif(str(model_name.value) == "resnet18"):
+            return torchvision.models.resnet18(pretrained=True)
+            
+        elif(str(model_name.value) == "resnet50"):
+            return torchvision.models.resnet50(pretrained=True)
+            
+        print("Invalid model selection. Select amongst alexnet, squeezenet, resnet18 and resnet50")
+      
+
+
  
     def classify_image(self,img):
         
@@ -76,7 +102,7 @@ class WebcamClassifier(Node):
 	
         # Classify the image
         start = timer() 
-        out = self.squeezenet(batch_t)
+        out = self.classification_model(batch_t)
         end = timer()
 
         print("Live classifier time: ", (end-start))

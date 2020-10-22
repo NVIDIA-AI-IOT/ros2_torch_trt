@@ -32,6 +32,7 @@ import os
 import cv2
 from cv_bridge import CvBridge, CvBridgeError
 
+from torch2trt import torch2trt
 from torch2trt import TRTModule
 
 class TRTWebcamClassifier(Node):
@@ -43,20 +44,68 @@ class TRTWebcamClassifier(Node):
         self.image_subscriber
 
         # create a publisher onto the vision_msgs 2D classification topic
-        self.classification_publisher = self.create_publisher(Classification2D, 'classification', 10)
-        # self.string_publisher = self.create_publisher(String, 'check_rate', 10)
+        self.classification_publisher = self.create_publisher(Classification2D, 'trt_classification', 10)
 
-        # Use the SqueezeNet TRT model for classification
-        self.squeezenet_trt = TRTModule()
-        self.squeezenet_trt.load_state_dict(torch.load(os.getenv("HOME") + '/ros2_models/ros2_classification.pth'))
+        self.declare_parameter('trt_model', "resnet18")
+        model_name = self.get_parameter('trt_model')
+        
+        # The model_path which should exist if the TRT module exists
+        trt_model_path = os.getenv("HOME") + '/ros2_models/trt-' + str(model_name.value) + '.pth' 
+        
+        if (os.path.isfile(trt_model_path)):
+            print("TRT Classification Module exists, loading..")
+            
+        else:
+            print("TRT Module does not exist, will create one...")
+            self.create_save_trt_module(model_name)        
+ 
+        # Now define and load the TRT module for the given model
+        self.classification_model_trt = TRTModule()
+        self.classification_model_trt.load_state_dict(torch.load(trt_model_path))
 
         # Use CV bridge to convert ROS Image to CV_image for visualizing in window
         self.bridge = CvBridge()
 
         # Find the location of the ImageNet labels text and open it
         with open(os.getenv("HOME") + '/ros2_models/imagenet_classes.txt') as f:
-           self.labels = [line.strip() for line in f.readlines()]      
+           self.labels = [line.strip() for line in f.readlines()]
+
+    def create_save_trt_module(self, model_name):
+        
+        # The model_path which should exist if the TRT module exists
+        trt_model_path = os.getenv("HOME") + '/ros2_models/trt-' + str(model_name.value) + '.pth'      
+        
+        x = torch.ones((1, 3, 224, 224)).cuda()
  
+        print("Importing the " + str(model_name.value) + " model.....")
+ 
+        if(str(model_name.value) == "squeezenet"):
+            model = models.squeezenet1_1(pretrained=True).eval().cuda()
+            print("Create and save tensorRT version.....")
+            # convert to TensorRT feeding sample data as input
+            model_trt = torch2trt(model, [x])
+            torch.save(model_trt.state_dict(), trt_model_path)
+            
+        elif(str(model_name.value) == "alexnet"):
+            model = models.alexnet(pretrained=True).eval().cuda()
+            print("Create and save tensorRT version.....")
+            model_trt = torch2trt(model, [x])
+            torch.save(model_trt.state_dict(), trt_model_path)
+            
+        elif(str(model_name.value) == "resnet18"):
+            model = models.resnet18(pretrained=True).eval().cuda()
+            print("Create and save tensorRT version.....")
+            model_trt = torch2trt(model, [x])
+            torch.save(model_trt.state_dict(), trt_model_path)
+            
+        elif(str(model_name.value) == "resnet50"):
+            model = models.resnet50(pretrained=True).eval().cuda()
+            print("Create and save tensorRT version.....")
+            model_trt = torch2trt(model, [x])
+            torch.save(model_trt.state_dict(), trt_model_path)
+            
+        else:
+             print("Invalid model selection. Select amongst alexnet, squeezenet, resnet18 and resnet50")
  
     def classify_image(self,img):
         
@@ -75,7 +124,7 @@ class TRTWebcamClassifier(Node):
 	
         # Classify the image
         start = timer() 
-        out = self.squeezenet_trt(batch_t)
+        out = self.classification_model_trt(batch_t)
         end = timer()
 
         print("TRT Time: ", (end-start))

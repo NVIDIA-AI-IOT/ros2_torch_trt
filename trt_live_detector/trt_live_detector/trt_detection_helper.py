@@ -24,6 +24,7 @@ import cv2
 import numpy as np
 import os
 
+from torch2trt import torch2trt
 from torch2trt import TRTModule
 import torch
 
@@ -38,22 +39,47 @@ class TRTDetectionNode(Node):
         self.bridge = CvBridge()
 
         # Create a Detection 2D array topic to publish results on
-        self.detection_publisher = self.create_publisher(Detection2DArray, 'detection', 10)
+        self.detection_publisher = self.create_publisher(Detection2DArray, 'trt_detection', 10)
 
         self.net_type = 'mb1-ssd'
         
         # Weights and labels locations
         self.label_path = os.getenv("HOME") + '/ros2_models/voc-model-labels.txt'
-        model_path = os.getenv("HOME") + '/ros2_models/mb1SSD_trt.pth'
+        trt_model_path = os.getenv("HOME") + '/ros2_models/mb1SSD_trt.pth'
 
         self.class_names = [name.strip() for name in open(self.label_path).readlines()]
         self.num_classes = len(self.class_names)
-                
-        self.net = TRTModule()
-        self.net.load_state_dict(torch.load(model_path))
-        self.predictor = create_mobilenetv1_ssd_predictor(self.net, candidate_size=200)
+        
+        if (os.path.isfile(trt_model_path)):
+            print("TRT Module exists, loading..")        
 
+        else:
+            print("TRT Module does not exist, will create one...")
+            self.create_TRT_module()
+            
+        self.net = TRTModule()
+        self.net.load_state_dict(torch.load(trt_model_path))
+        self.predictor = create_mobilenetv1_ssd_predictor(self.net, candidate_size=200)
+            
         self.timer = Timer()
+
+    def create_TRT_module(self):
+        model_path = os.getenv("HOME")+ '/ros2_models/mobilenet-v1-ssd-mp-0_675.pth'
+        model = create_mobilenetv1_ssd(len(self.class_names), is_test=True)
+        model.load_state_dict(torch.load(model_path))
+        model.eval().cuda()
+
+        x = torch.ones((1,3,300,300)).cuda()
+
+        print("Creating TRT version...........")
+        model_trt = torch2trt(model, [x])
+        print("Created TRT version.......")
+
+        save_location = os.getenv("HOME") + '/ros2_models/mb1SSD_trt.pth'
+
+        print("Saving TRT model......")
+        torch.save(model_trt.state_dict(), save_location)
+ 
 
     def listener_callback(self, data):
         self.get_logger().info("Received an image! ")
