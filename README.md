@@ -145,6 +145,8 @@ If using usb_camera package: `ros2 run usb_camera_driver usb_camera_driver_node`
 - In the second terminal (should be sourced):
 `ros2 run trt_live_detector trt_detector`
 
+When this is run the first time it will generate the TRT module depending on your hardware configuration which will take time.
+
 - The results of the classfication are published as `Classification2D` messages.
 Open a new terminal and source it. Run: 
 `ros2 topic echo trt_detection`
