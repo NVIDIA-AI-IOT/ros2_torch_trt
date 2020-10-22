@@ -158,7 +158,6 @@ Open a new terminal and source it. Run:
 
 - PyTorch implementation of the MobileNetV1 SSD model from https://github.com/qfgaohao/pytorch-ssd is used. The download links for the weights and the labels for `live_detection` use the pre-trained ones provided in the repository.
 
-- SqueezeNet pretrained model on ImageNet from `torchvision` is used directly.
 
 
 
