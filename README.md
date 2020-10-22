@@ -37,6 +37,7 @@ Build these packages into your workspace. Make sure ROS2 versions are present.
 - Clone this repository into your workspace
 
 - Execute the following to create a new folder `ros2_models` in `home` for storing all the models and labels needed:
+
 ``` 
 cd
 mkdir ros2_models 
@@ -58,17 +59,18 @@ mkdir ros2_models
 If using usb_camera package: `ros2 run usb_camera_driver usb_camera_driver_node`
 
 - In the second terminal (should be sourced) :
-`ros2 run live_classifier live_classifier`
+`ros2 run live_classifier live_classifier --ros-args -p model:=resnet50`
+
+ Other model options include `resnet18`, `squeezenet`, `alexnet` which can be passed with the `model:=resnet18` for example.
 
 - The classification node will subscribe to the image topic and will perform classification.
 It will display the label and confidence for the image being classified.
 Also, a window will appear which will display the webcam image stream.
 
-- The results of the detection are published as `Classification2D` messages.
+- The results of the classfication are published as `Classification2D` messages.
 Open a new terminal and source it. Run: 
 `ros2 topic echo classification`
 
-- Other pretrained models can be imported via `torchvision` as well. Line 37 in `live_classification.py` can be edited accordingly.
 
 ## Build and run live_detection
 
@@ -94,6 +96,10 @@ If using usb_camera package: `ros2 run usb_camera_driver usb_camera_driver_node`
 It will display the labels and probabilities for the objects detected in the image.
 Also, a window will appear which will display the object detection results in real time.
 
+- The results of the detection are published as `Detection2DArray` messages.
+Open a new terminal and source it. Run: 
+`ros2 topic echo detection`
+
 ## RQT Graph when both Detection and Classifier Nodes are running
 
 ![alt text](images/detectin_classification.png "Graph which shows nodes and topics")
@@ -101,13 +107,6 @@ Also, a window will appear which will display the object detection results in re
 - The results are published to `vision_msgs`
 
 ## Build and run trt_live_classifier
-
-- Open a terminal and navigate into your worksapce. We need to run a `python` script to generate the `trt` module which depends on your hardware configuration.
-```
-cd src/ros2-pytorch/trt_live_classfier/trt_live_classifier
-python3 generate_trt_module.py
-```
-- This will create the necessary `.pth` file in `home/ros2_models` which will be needed for inference via `torch2trt`. By default a Squeezenet model is created.
 
 - The package can now be built and run. Navigate into your workspace run `colcon build --packages-select trt_live_classifier`
 
@@ -119,18 +118,20 @@ python3 generate_trt_module.py
 If using usb_camera package: `ros2 run usb_camera_driver usb_camera_driver_node`
 
 - In the second terminal (should be sourced):
-`ros2 run trt_live_classifier trt_classifier`
+`ros2 run trt_live_classifier trt_classifier --ros-args -p model:=resnet50`
+
+ Other model options include `resnet18`, `squeezenet`, `alexnet` which can be passed with the `model:=resnet18` for example.
+ Running it the first time will be slow as the corresponding TRT module will be generated for your hardware configuration.
 
 - This will now create a node which carries out faster inference which is clear from the `inference time` which is displayed on the terminal as well. 
 
+- The results of the classfication are published as `Classification2D` messages.
+Open a new terminal and source it. Run: 
+`ros2 topic echo trt_classification`
+
 ## Build and run trt_live_detector:
 
-- Open a terminal and navigate into your worksapce. We need to run a `python` script to generate the `trt` module which depends on your hardware configuration.
-```
-cd src/ros2-pytorch/trt_live_detector/trt_live_detector
-python3 ssd_trtConverter.py
-```
-- This will create the necessary `.pth` file in `home/ros2_models` which will be needed for inference via `torch2trt`. The `mbv1-ssd` model which was used in `live_detection` is converted to the `torch2trt` format.
+- Make sure the weights and labels from `live_detection` section are placed in the `ros2/models` directory. They will be needed for generating the TRT Module.
 
 - The package can now be built and run. Navigate into your workspace run `colcon build --packages-select trt_live_detector`
 
@@ -144,17 +145,12 @@ If using usb_camera package: `ros2 run usb_camera_driver usb_camera_driver_node`
 - In the second terminal (should be sourced):
 `ros2 run trt_live_detector trt_detector`
 
+- The results of the classfication are published as `Classification2D` messages.
+Open a new terminal and source it. Run: 
+`ros2 topic echo trt_detection`
+
 - This will now create a node which carries out faster object detection which is clear from the `inference time` and is displayed on the terminal as well.
 
-## Speedup by using TRT module
-
-All expereiments were carried out on the Jetson Xavier AGX
-
-`Time for Live Classifier: 0.026 secs`
-`Time for TRT classifier: 0.0014 secs`
-
-`Time for Live detector: 0.028 secs`
-`Time for TRT detector: 0.0032 secs`
 
 ## References
 
