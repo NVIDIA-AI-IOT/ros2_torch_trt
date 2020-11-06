@@ -3,7 +3,7 @@ This repository contains ROS2 packages for carrying out real time classification
 
 It also contains packages which use TensorRT to perform faster inference via `torch2trt`.
 
-An ImageNet pre-trained SqueezeNet model is used for classification.
+For Object Classification users can select from a variety of pretrained models.
 
 For Object Detection, the MobileNetV1 SSD model is used. 
 
@@ -52,8 +52,7 @@ mkdir ros2_models
 - Navigate into your worksapce. Run: `colcon build --packages-select live_classifier`
 
 - Next, open 2 terminals and navigate to your workspace. Run both these commands sequentially: 
-`source /opt/ros/eloquent/setup.bash` and 
-`. install/setup.bash` This will source the terminals.
+`source /opt/ros/eloquent/setup.bash` and `. install/setup.bash` This will source the terminals.
 
 - Now, first begin streaming images from your webcam. In one of the terminals: If using image_tools package: `ros2 run image_tools cam2image`
 If using usb_camera package: `ros2 run usb_camera_driver usb_camera_driver_node`
@@ -83,8 +82,7 @@ Place these files in `home/ros2_models` directory.
 - Navigate into your worksapce. Run: `colcon build --packages-select live_detection`
 
 - Next, open 2 terminals and navigate to your workspace. Run both these commands sequentially: 
-`source /opt/ros/eloquent/setup.bash` and 
-`. install/setup.bash` This will source the terminals.
+`source /opt/ros/eloquent/setup.bash` and  `. install/setup.bash` This will source the terminals.
 
 - Now, first begin streaming images from your webcam. In one of the terminals: If using image_tools package: `ros2 run image_tools cam2image`
 If using usb_camera package: `ros2 run usb_camera_driver usb_camera_driver_node`
@@ -111,8 +109,7 @@ Open a new terminal and source it. Run:
 - The package can now be built and run. Navigate into your workspace run `colcon build --packages-select trt_live_classifier`
 
 - Next, open 2 terminals and navigate to your workspace. Run both these commands sequentially: 
-`source /opt/ros/eloquent/setup.bash` and 
-`. install/setup.bash` This will source the terminals.
+`source /opt/ros/eloquent/setup.bash` and  `. install/setup.bash` This will source the terminals.
 
 - Now, first begin streaming images from your webcam. In one of the terminals: If using image_tools package: `ros2 run image_tools cam2image`
 If using usb_camera package: `ros2 run usb_camera_driver usb_camera_driver_node`
@@ -136,8 +133,7 @@ Open a new terminal and source it. Run:
 - The package can now be built and run. Navigate into your workspace run `colcon build --packages-select trt_live_detector`
 
 - Next, open 2 terminals and navigate to your workspace. Run both these commands sequentially: 
-`source /opt/ros/eloquent/setup.bash` and 
-`. install/setup.bash` This will source the terminals.
+`source /opt/ros/eloquent/setup.bash` and  `. install/setup.bash` This will source the terminals.
 
 - Now, first begin streaming images from your webcam. In one of the terminals: If using image_tools package: `ros2 run image_tools cam2image`
 If using usb_camera package: `ros2 run usb_camera_driver usb_camera_driver_node`
@@ -147,7 +143,7 @@ If using usb_camera package: `ros2 run usb_camera_driver usb_camera_driver_node`
 
 When this is run the first time it will generate the TRT module depending on your hardware configuration which will take time.
 
-- The results of the classfication are published as `Classification2D` messages.
+- The results of the detection are published as `Detection2DArray` messages.
 Open a new terminal and source it. Run: 
 `ros2 topic echo trt_detection`
 
