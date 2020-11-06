@@ -1,0 +1,162 @@
+#
+# this dockerfile roughly follows the 'Install ROS2 Via Debian Packages' from:
+#   https://index.ros.org/doc/ros2/Installation/Eloquent/Linux-Install-Debians/
+#
+ARG BASE_IMAGE=nvcr.io/nvidia/l4t-base:r32.4.3
+FROM ${BASE_IMAGE}
+
+ARG ROS_PKG=ros_base
+ENV ROS_DISTRO=eloquent
+ENV ROS_ROOT=/opt/ros/${ROS_DISTRO}
+
+ENV DEBIAN_FRONTEND=noninteractive
+
+WORKDIR /workspace
+
+# change the locale from POSIX to UTF-8
+RUN locale-gen en_US en_US.UTF-8 && update-locale LC_ALL=en_US.UTF-8 LANG=en_US.UTF-8
+ENV LANG=en_US.UTF-8
+
+# add the ROS deb repo to the apt sources list
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends \
+          git \
+		cmake \
+		build-essential \
+		curl \
+		wget \ 
+		gnupg2 \
+		lsb-release \
+    && rm -rf /var/lib/apt/lists/*
+    
+RUN wget --no-check-certificate https://raw.githubusercontent.com/ros/rosdistro/master/ros.asc && apt-key add ros.asc
+RUN sh -c 'echo "deb [arch=$(dpkg --print-architecture)] http://packages.ros.org/ros2/ubuntu $(lsb_release -cs) main" > /etc/apt/sources.list.d/ros2-latest.list'
+
+# install ROS packages
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends \
+		ros-eloquent-ros-base \
+		ros-eloquent-launch-xml \
+		ros-eloquent-launch-yaml \
+		ros-eloquent-vision-msgs \
+                ros-eloquent-image-tools \
+		libpython3-dev \
+		python3-colcon-common-extensions \
+		python3-rosdep \
+    && rm -rf /var/lib/apt/lists/*
+  
+# init/update rosdep
+RUN apt-get update && \
+    cd ${ROS_ROOT} && \
+    rosdep init && \
+    rosdep update && \
+    rm -rf /var/lib/apt/lists/*
+    
+# compile yaml-cpp-0.6, which some ROS packages may use (but is not in the 18.04 apt repo)
+RUN git clone --branch yaml-cpp-0.6.0 https://github.com/jbeder/yaml-cpp yaml-cpp-0.6 && \
+    cd yaml-cpp-0.6 && \
+    mkdir build && \
+    cd build && \
+    cmake -DBUILD_SHARED_LIBS=ON .. && \
+    make -j$(nproc) && \
+    cp libyaml-cpp.so.0.6.0 /usr/lib/aarch64-linux-gnu/ && \
+    ln -s /usr/lib/aarch64-linux-gnu/libyaml-cpp.so.0.6.0 /usr/lib/aarch64-linux-gnu/libyaml-cpp.so.0.6
+
+# setup entrypoint
+COPY ./packages/ros_entrypoint.sh /ros_entrypoint.sh
+RUN echo 'source ${ROS_ROOT}/setup.bash' >> /root/.bashrc 
+RUN chmod +x /ros_entrypoint.sh
+ENTRYPOINT ["/ros_entrypoint.sh"]
+CMD ["bash"]
+WORKDIR /
+
+#
+# install OpenCV (with GStreamer support)
+#
+COPY jetson-ota-public.asc /etc/apt/trusted.gpg.d/jetson-ota-public.asc
+
+RUN echo "deb https://repo.download.nvidia.com/jetson/common r32.4 main" > /etc/apt/sources.list.d/nvidia-l4t-apt-source.list && \
+    apt-get update && \
+    apt-get install -y --no-install-recommends \
+            libopencv-python \
+    && rm /etc/apt/sources.list.d/nvidia-l4t-apt-source.list \
+    && rm -rf /var/lib/apt/lists/*
+
+# -----------------------------
+# PyTorch Installations
+# ----------------------------
+#
+# install prerequisites (many of these are for numpy)
+#
+ENV PATH="/usr/local/cuda-10.2/bin:${PATH}"
+ENV LD_LIBRARY_PATH="/usr/local/cuda-10.2/lib64:/usr/local/cuda-10.2/extras/CUPTI/lib64:${LD_LIBRARY_PATH}"
+
+
+RUN apt-get update && \
+    ldconfig && \
+    apt-get install -y --no-install-recommends \
+            python3-pip \
+		  python3-dev \
+		  libopenblas-dev \
+		  libopenmpi2 \
+            openmpi-bin \
+            openmpi-common \
+		  gfortran \
+    && rm -rf /var/lib/apt/lists/*
+
+RUN pip3 install setuptools Cython wheel
+RUN pip3 install numpy --verbose
+
+#
+# PyTorch (for JetPack 4.4 DP)
+#
+#  PyTorch v1.2.0 https://nvidia.box.com/shared/static/lufbgr3xu2uha40cs9ryq1zn4kxsnogl.whl (torch-1.2.0-cp36-cp36m-linux_aarch64.whl)
+#  PyTorch v1.3.0 https://nvidia.box.com/shared/static/017sci9z4a0xhtwrb4ps52frdfti9iw0.whl (torch-1.3.0-cp36-cp36m-linux_aarch64.whl)
+#  PyTorch v1.4.0 https://nvidia.box.com/shared/static/c3d7vm4gcs9m728j6o5vjay2jdedqb55.whl (torch-1.4.0-cp36-cp36m-linux_aarch64.whl)
+#  PyTorch v1.5.0 https://nvidia.box.com/shared/static/3ibazbiwtkl181n95n9em3wtrca7tdzp.whl (torch-1.5.0-cp36-cp36m-linux_aarch64.whl)
+#
+ARG PYTORCH_URL=https://nvidia.box.com/shared/static/9eptse6jyly1ggt9axbja2yrmj6pbarc.whl
+ARG PYTORCH_WHL=torch-1.6.0-cp36-cp36m-linux_aarch64.whl
+
+RUN wget --quiet --show-progress --progress=bar:force:noscroll --no-check-certificate ${PYTORCH_URL} -O ${PYTORCH_WHL} && \
+    pip3 install ${PYTORCH_WHL} --verbose && \
+    rm ${PYTORCH_WHL}
+
+
+#
+# torchvision 0.4
+#
+ARG TORCHVISION_VERSION=v0.7.0
+#ARG PILLOW_VERSION="pillow<7"
+ARG TORCH_CUDA_ARCH_LIST="7.2"
+
+#RUN printenv && echo "torchvision version = $TORCHVISION_VERSION" && echo "pillow version = $PILLOW_VERSION" && echo "TORCH_CUDA_ARCH_LIST = $TORCH_CUDA_ARCH_LIST"
+
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends \
+		  git \
+		  build-essential \
+            libjpeg-dev \
+		  zlib1g-dev \
+    && rm -rf /var/lib/apt/lists/*
+
+RUN git clone -b ${TORCHVISION_VERSION} https://github.com/pytorch/vision torchvision && \
+    cd torchvision && \
+    python3 setup.py install && \
+    cd ../ && \
+    rm -rf torchvision
+
+# 
+# PyCUDA
+#
+ENV PATH="/usr/local/cuda/bin:${PATH}"
+ENV LD_LIBRARY_PATH="/usr/local/cuda/lib64:${LD_LIBRARY_PATH}"
+RUN echo "$PATH" && echo "$LD_LIBRARY_PATH"
+
+RUN pip3 install pycuda --verbose
+# -------------------
+# torch2trt installations
+# -------------------
+RUN git clone https://github.com/NVIDIA-AI-IOT/torch2trt && \
+    cd torch2trt && \
+    python3 setup.py install --plugins
