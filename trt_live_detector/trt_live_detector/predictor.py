@@ -1,8 +1,8 @@
 import torch
 
-from live_detection import box_utils
-from live_detection.data_preprocessing import PredictionTransform
-from live_detection.misc import Timer
+from trt_live_detector import box_utils
+from trt_live_detector.data_preprocessing import PredictionTransform
+from trt_live_detector.misc import Timer
 
 
 class Predictor:
