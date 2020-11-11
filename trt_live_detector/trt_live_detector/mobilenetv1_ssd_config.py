@@ -1,6 +1,6 @@
 import numpy as np
 
-from live_detection.box_utils import SSDSpec, SSDBoxSizes, generate_ssd_priors
+from trt_live_detector.box_utils import SSDSpec, SSDBoxSizes, generate_ssd_priors
 
 
 image_size = 300
