@@ -1,4 +1,4 @@
-from multiple_imports.transforms import *
+from trt_live_detector.transforms import *
 
 
 class TrainAugmentation:
