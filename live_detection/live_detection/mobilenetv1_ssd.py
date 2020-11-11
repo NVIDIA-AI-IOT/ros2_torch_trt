@@ -1,6 +1,6 @@
 import torch
 from torch.nn import Conv2d, Sequential, ModuleList, ReLU
-from multiple_imports.mobilenet import MobileNetV1
+from live_detection.mobilenet import MobileNetV1
 
 from live_detection.ssd import SSD
 from live_detection.predictor import Predictor
