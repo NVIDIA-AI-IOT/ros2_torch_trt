@@ -4,7 +4,7 @@ import numpy as np
 from typing import List, Tuple
 import torch.nn.functional as F
 
-from live_detection import box_utils		# Check this in case error comes
+from trt_live_detector import box_utils		# Check this in case error comes
 from collections import namedtuple
 GraphPath = namedtuple("GraphPath", ['s0', 'name', 's1'])  #
 
