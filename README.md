@@ -115,7 +115,7 @@ Open a new terminal and source it. Run:
 If using usb_camera package: `ros2 run usb_camera_driver usb_camera_driver_node`
 
 - In the second terminal (should be sourced):
-`ros2 run trt_live_classifier trt_classifier --ros-args -p model:=resnet50`
+`ros2 run trt_live_classifier trt_classifier --ros-args -p trt_model:=resnet50`
 
  Other model options include `resnet18`, `squeezenet`, `alexnet` which can be passed with the `model:=resnet18` for example.
  Running it the first time will be slow as the corresponding TRT module will be generated for your hardware configuration.
