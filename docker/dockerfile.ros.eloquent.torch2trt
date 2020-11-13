@@ -165,4 +165,5 @@ RUN git clone https://github.com/NVIDIA-AI-IOT/torch2trt && \
 # cv_bridge dependency
 #---------------------
 
-RUN apt-get install cmake libblkid-dev e2fslibs-dev libboost-all-dev libaudit-dev
+RUN apt-get update
+RUN apt-get install -y cmake libblkid-dev e2fslibs-dev libboost-all-dev libaudit-dev
