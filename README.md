@@ -98,7 +98,7 @@ Also, a window will appear which will display the object detection results in re
 Open a new terminal and source it. Run: 
 `ros2 topic echo detection`
 
-- For visualizing the results in RViZ2 set the `fixed_frame` as `camera_frame`. Select the topic `detection_image` to visualize the detections.
+- For visualizing the results in RViZ2 set the `Fixed Frame` as `camera_frame`. Select the topic `detection_image` to visualize the detections.
 
 ## RQT Graph when both Detection and Classifier Nodes are running
 
@@ -151,7 +151,7 @@ Open a new terminal and source it. Run:
 
 - This will now create a node which carries out faster object detection which is clear from the `inference time` and is displayed on the terminal as well.
 
-- For visualizing the results in RViZ2 set the `fixed_frame` as `camera_frame`. Select the topic `trt_detection_image` to visualize the detections.
+- For visualizing the results in RViZ2 set the `Fixed Frame` as `camera_frame`. Select the topic `trt_detection_image` to visualize the detections.
 
 
 ## References
