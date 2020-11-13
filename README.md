@@ -10,6 +10,7 @@ For Object Detection, the MobileNetV1 SSD model is used.
 These models are converted to their TRT formats for faster inference using `torch2trt`
 
 The packages have been tested on NVIDIA Jetson Xavier AGX with Ubuntu 18.04, ROS Eloquent and PyTorch version 1.6.0
+
  
 ### Package Dependencies:
 
@@ -29,6 +30,11 @@ Build these packages into your workspace. Make sure ROS2 versions are present.
 `OpenCV` (Should already exist if Jetson has been flashed with JetPack)
 
 `torch2trt` (refer: https://github.com/NVIDIA-AI-IOT/torch2trt)
+
+![alt text](images/readme_gif.gif )
+
+
+The FPS can be seen on the left side of the image along with the detection window on the right.
 
 ## Steps before using the packages
 
