@@ -110,7 +110,7 @@ class DetectionNode(Node):
         # Publishing the results onto the the Detection2DArray vision_msgs format
         self.detection_publisher.publish(detection_array)
         ros_image = self.bridge.cv2_to_imgmsg(cv_image)
-        ros_image.header.frame_id = data.header.frame_id
+        ros_image.header.frame_id = 'camera_frame'
         self.result_publisher.publish(ros_image)
         cv2.waitKey(1)
         
