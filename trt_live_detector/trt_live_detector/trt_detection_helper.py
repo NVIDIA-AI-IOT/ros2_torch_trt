@@ -41,6 +41,9 @@ class TRTDetectionNode(Node):
         # Create a Detection 2D array topic to publish results on
         self.detection_publisher = self.create_publisher(Detection2DArray, 'trt_detection', 10)
 
+        # Create an Image publisher for the results
+        self.result_publisher = self.create_publisher(Image,'trt_detection_image',10)
+
         self.net_type = 'mb1-ssd'
         
         # Weights and labels locations
@@ -134,6 +137,10 @@ class TRTDetectionNode(Node):
         cv2.imshow('trt_object_detection', cv_image)
         # Publishing the results onto the the Detection2DArray vision_msgs format
         self.detection_publisher.publish(detection_array)
+        
+        ros_image = self.bridge.cv2_to_imgmsg(cv_image)
+        ros_image.header.frame_id = data.header.frame_id
+        self.result_publisher.publish(ros_image)
         cv2.waitKey(1)
         
 
