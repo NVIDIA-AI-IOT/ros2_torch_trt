@@ -33,4 +33,11 @@ Copy ``` jetson-ota-public.asc ``` from ``` /etc/apt/trusted.gpg.d ``` to your c
 ``` sh docker_run.sh ```
 
 
+``` cv_bridge ``` will be needed for the packages to run. Add it to your current ROS2 workspace and build it:  https://github.com/ros-perception/vision_opencv/tree/ros2/cv_bridge
+
+Now, all the dependecies are installed. The packages from this repository can now be built after cloning it into your workspace. 
+
+Follow the instructions in the main ReadMe for using the packages. 
+
+
 
