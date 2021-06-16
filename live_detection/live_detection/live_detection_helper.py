@@ -74,14 +74,15 @@ class DetectionNode(Node):
         
         for i in range(boxes.size(0)):
             box = boxes[i, :]
+            box = box.numpy().astype(int) #convert to numpy and cast as int. OpenCV rectange cannot parse floats
             label = f"{self.class_names[labels[i]]}: {probs[i]:.2f}"
             print("Object: " + str(i) + " " + label)
             cv2.rectangle(cv_image, (box[0], box[1]), (box[2], box[3]), (255, 255, 0), 4)
 
             # Definition of 2D array message and ading all object stored in it.
             object_hypothesis_with_pose = ObjectHypothesisWithPose()
-            object_hypothesis_with_pose.id = str(self.class_names[labels[i]])
-            object_hypothesis_with_pose.score = float(probs[i])
+            object_hypothesis_with_pose.hypothesis.class_id = str(self.class_names[labels[i]])
+            object_hypothesis_with_pose.hypothesis.score = float(probs[i])
 
             bounding_box = BoundingBox2D()
             bounding_box.center.x = float((box[0] + box[2])/2)
