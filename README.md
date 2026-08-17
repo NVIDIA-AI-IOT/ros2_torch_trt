@@ -136,7 +136,7 @@ Open a new terminal and source it. Run:
 
 ## Build and run trt_live_detector:
 
-- Make sure the weights and labels from `live_detection` section are placed in the `ros2/models` directory. They will be needed for generating the TRT Module.
+- Make sure the weights and labels from `live_detection` section are placed in the `ros2_models` directory. They will be needed for generating the TRT Module.
 
 - The package can now be built and run. Navigate into your workspace run `colcon build --packages-select trt_live_detector`
 
