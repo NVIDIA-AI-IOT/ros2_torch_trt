@@ -80,8 +80,10 @@ class WebcamClassifier(Node):
         elif(str(model_name.value) == "resnet50"):
             return torchvision.models.resnet50(pretrained=True)
             
-        print("Invalid model selection. Select amongst alexnet, squeezenet, resnet18 and resnet50")
-      
+        raise ValueError(
+            "Invalid model selection. Select amongst alexnet, squeezenet, resnet18 and resnet50."
+        )
+
 
 
  
